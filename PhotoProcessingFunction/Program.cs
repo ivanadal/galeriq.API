@@ -1,6 +1,5 @@
 using Galeriq.Data;
 using Galeriq.PhotoProcessor;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
