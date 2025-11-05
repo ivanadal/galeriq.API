@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33627.172
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Galeriq.CollectionsAPI", "GaleriqAPI\Galeriq.CollectionsAPI.csproj", "{04C85972-6DB0-4647-9A56-E6C52BF62158}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Galeriq.PhotoProcessingFunction", "PhotoProcessingFunction\Galeriq.PhotoProcessingFunction.csproj", "{AD03DCAF-1767-4AAB-B1CE-8EFAFF596EED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Galeriq.PhotoProcessor", "PhotoProcessor\Galeriq.PhotoProcessor.csproj", "{FE098781-0A0B-43C1-A730-44ADDE7E0B10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Galeriq.Model", "GaleriqModel\Galeriq.Model.csproj", "{8DFC1274-DD19-44AF-B242-D5A9A8E814C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Galeriq.Data", "Galeriq.Data\Galeriq.Data.csproj", "{60D75F55-77F9-4687-88C6-297AC5AFC031}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Galeriq.UnitTests", "Galeriq.UnitTests\Galeriq.UnitTests.csproj", "{7B2C446D-5BBF-4853-B190-80F9A3A9AE74}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04C85972-6DB0-4647-9A56-E6C52BF62158}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04C85972-6DB0-4647-9A56-E6C52BF62158}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04C85972-6DB0-4647-9A56-E6C52BF62158}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04C85972-6DB0-4647-9A56-E6C52BF62158}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD03DCAF-1767-4AAB-B1CE-8EFAFF596EED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD03DCAF-1767-4AAB-B1CE-8EFAFF596EED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD03DCAF-1767-4AAB-B1CE-8EFAFF596EED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD03DCAF-1767-4AAB-B1CE-8EFAFF596EED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE098781-0A0B-43C1-A730-44ADDE7E0B10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE098781-0A0B-43C1-A730-44ADDE7E0B10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE098781-0A0B-43C1-A730-44ADDE7E0B10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE098781-0A0B-43C1-A730-44ADDE7E0B10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DFC1274-DD19-44AF-B242-D5A9A8E814C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DFC1274-DD19-44AF-B242-D5A9A8E814C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DFC1274-DD19-44AF-B242-D5A9A8E814C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DFC1274-DD19-44AF-B242-D5A9A8E814C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60D75F55-77F9-4687-88C6-297AC5AFC031}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60D75F55-77F9-4687-88C6-297AC5AFC031}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60D75F55-77F9-4687-88C6-297AC5AFC031}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60D75F55-77F9-4687-88C6-297AC5AFC031}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B2C446D-5BBF-4853-B190-80F9A3A9AE74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B2C446D-5BBF-4853-B190-80F9A3A9AE74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B2C446D-5BBF-4853-B190-80F9A3A9AE74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B2C446D-5BBF-4853-B190-80F9A3A9AE74}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9909774A-5A8E-47B2-9944-937B4B58455B}
+	EndGlobalSection
+EndGlobal

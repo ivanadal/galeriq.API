@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "PhotoProcessingFunction": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7166",
+      "launchBrowser": false
+    }
+  }
+}
