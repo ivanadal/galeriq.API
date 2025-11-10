@@ -1,6 +1,8 @@
+using Azure.Identity;
 using CollectionsAPI.Services;
 using Galeriq.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration; 
 
 internal class Program
 {
@@ -16,9 +18,20 @@ internal class Program
         builder.Services.AddSwaggerGen();
         builder.Services.Configure<ServiceBusSettings>(
             builder.Configuration.GetSection("Azure:ServiceBus"));
+        // Retrieve Key Vault name from config
+        var keyVaultName = builder.Configuration["KeyVaultName"];
+        if (string.IsNullOrEmpty(keyVaultName))
+            throw new InvalidOperationException("KeyVaultName is not configured.");
 
-        // Get the connection string from configuration
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+
+        // Add Azure Key Vault secrets to configuration
+        builder.Configuration.AddAzureKeyVault(
+            keyVaultUri,
+            new DefaultAzureCredential());
+
+        // Now you can directly access secrets as if they were in appsettings.json
+        var connectionString = builder.Configuration["galeriqDB"];
 
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(connectionString));
