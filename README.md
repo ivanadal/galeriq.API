@@ -102,4 +102,6 @@ dotnet test
 - Add tests for bug fixes or new features.
 - Open a pull request with a clear description.
 
+## JIRA
+Link to board: https://galeriq.atlassian.net/jira/software/projects/MBA/boards/1
 

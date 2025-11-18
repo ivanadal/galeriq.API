@@ -2,7 +2,8 @@ using Azure.Identity;
 using CollectionsAPI.Services;
 using Galeriq.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration; 
+using Microsoft.Extensions.Configuration;
+using System.Threading.RateLimiting;
 
 internal class Program
 {
@@ -34,7 +35,26 @@ internal class Program
         var connectionString = builder.Configuration["galeriqDB"];
 
         builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseSqlServer(connectionString,
+            sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,              
+            maxRetryDelay: TimeSpan.FromSeconds(10), 
+            errorNumbersToAdd: null)));
+
+        //Adding rate-limiting services
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 20, 
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 2
+                    }));
+        });
 
         var app = builder.Build();
 
