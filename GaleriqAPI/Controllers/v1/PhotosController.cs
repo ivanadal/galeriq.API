@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CollectionsAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     public class PhotosController : ControllerBase
     {
         private readonly AppDbContext _context;

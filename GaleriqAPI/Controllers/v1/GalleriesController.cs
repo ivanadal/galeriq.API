@@ -3,10 +3,10 @@ using Galeriq.Data;
 using Galeriq.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GaleriqAPI.Controllers
+namespace Galeriq.CollectionsAPI.Controllers.v1
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     public class GalleriesController : ControllerBase
     {
         private readonly AppDbContext _context;

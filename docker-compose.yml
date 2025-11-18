@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+ db:
+ image: mcr.microsoft.com/mssql/server:2019-latest
+ container_name: galeriq_sql
+ environment:
+ - ACCEPT_EULA=Y
+ - MSSQL_PID=Developer
+ - SA_PASSWORD=Your_password123
+ ports:
+ - "1433:1433"
+ volumes:
+ - mssql_data:/var/opt/mssql
+ healthcheck:
+ test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $${SA_PASSWORD} -Q \"SELECT1\" || exit1"]
+ interval:10s
+ retries:10
+
+ azurite:
+ image: mcr.microsoft.com/azure-storage/azurite
+ container_name: galeriq_azurite
+ ports:
+ - "10000:10000" # Blob
+ - "10001:10001" # Queue
+ - "10002:10002" # Table
+ command: "azurite-blob --blobHost0.0.0.0 --silent --location /data"
+ volumes:
+ - azurite_data:/data
+
+volumes:
+ mssql_data:
+ azurite_data:
+
+# Notes:
+# - SQL Server uses SA password 'Your_password123' for local development. Change this before using in any shared environment.
+# - Azurite provides Blob and Queue storage APIs compatible with Azure Storage SDKs for local testing.
+# - Service Bus does not have an official local emulator; configure Service Bus settings in appsettings to point to a real Azure Service Bus namespace or use a third-party emulator if needed.
