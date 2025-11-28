@@ -1,106 +1,126 @@
-# Galeriq
+Galeriq API – Containerized (.NET 8 + Docker or Podman)
 
-Repository for the Galeriq photo gallery system. This solution contains an ASP.NET Core API for galleries and photos, a photo processing library, an Azure Function for background processing, and unit tests.
+This project is a .NET API designed to run easily inside containers using either:
 
-## Projects
+Docker (most common)
 
-- `GaleriqAPI` (project file: `GaleriqAPI/Galeriq.CollectionsAPI.csproj`) - ASP.NET Core Web API exposing gallery and photo endpoints.
-- `Galeriq.Data` (`Galeriq.Data/Galeriq.Data.csproj`) - EF Core entities and `AppDbContext`.
-- `Galeriq.PhotoProcessor` (`PhotoProcessor/Galeriq.PhotoProcessor.csproj`) - Photo processing library.
-- `Galeriq.PhotoProcessingFunction` (`PhotoProcessingFunction/Galeriq.PhotoProcessingFunction.csproj`) - Azure Function that processes photos (uses Service Bus + storage).
-- `Galeriq.UnitTests` (`Galeriq.UnitTests/Galeriq.UnitTests.csproj`) - Unit tests.
-- `Galeriq.Model` (`GaleriqModel/Galeriq.Model.csproj`) - Shared model types (if present).
+Podman (Docker alternative, rootless mode supported)
 
-## Requirements
+The API supports:
 
-- .NET8 SDK
-- Docker (for optional local dependencies)
-- (Optional) Azure resources if you want to run the function and message queue: Service Bus, Storage Account
+- SQL Server
 
-## Quick start
+- Azure Service Bus
 
-1. Clone the repository and open a terminal in the repo root.
+- Azure Key Vault
 
-2. Restore and build:
+- Swagger UI
 
-```bash
-dotnet restore
-dotnet build
-```
+- Rate limiting
 
-3. (Optional) Start local dependencies with Docker Compose (SQL Server + Azurite):
+- Automatic HTTP-only mode in containers
 
-```bash
-docker-compose up -d
-```
+📌 Running the API locally (without container)
+dotnet run
 
-This will start:
-- SQL Server on `localhost:1433` with SA password `Your_password123`.
-- Azurite (Azure Storage emulator) on `localhost:10000` (Blob) and `localhost:10001` (Queue).
 
-4. Update `GaleriqAPI/appsettings.json` or set environment variables with the following local values for development when using Docker Compose:
+Swagger available at:
 
-```json
-{
- "ConnectionStrings": {
- "DefaultConnection": "Server=localhost,1433;Database=GaleriqDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
- },
- "AzureStorage": {
- "BlobServiceUrl": "http://127.0.0.1:10000/devstoreaccount1",
- "AccountName": "devstoreaccount1",
- "AccountKey": "Eby8vdM02xNoGV...<AzuriteDefaultKey>..."
- },
- "ServiceBus": {
- "ConnectionString": "<your-service-bus-connection-string>",
- "QueueName": "photo-processing"
- }
-}
-```
+https://localhost:<port>/swagger
 
-Note: Azurite uses a default account name `devstoreaccount1` and a well-known key; check Azurite docs for the exact key to use in local development.
+🐳 Running with Docker
+1. Build the image
+docker build -t galeriqapi:test .
 
-5. Run the API (from repo root):
+2. Run using Key Vault (Azure recommended)
 
-```bash
-dotnet run --project GaleriqAPI/Galeriq.CollectionsAPI.csproj
-```
+Provide:
 
-The API will read configuration from `GaleriqAPI/appsettings.json` and environment variables. Update connection strings and Azure settings as needed.
+KEY_VAULT_URL
 
-## Configuration
+Azure credentials for Managed Identity (if needed)
 
-Edit `GaleriqAPI/appsettings.json` or set environment variables for:
+HTTP binding
 
-- Database connection string for EF Core (e.g. `ConnectionStrings:DefaultConnection`).
-- Service Bus connection: `ServiceBus:ConnectionString`, `ServiceBus:QueueName` (used by `ServiceBusQueueService`).
-- Storage account or other blob settings used by photo uploads.
+Development environment for Swagger
 
-Keep secrets out of source control; prefer user secrets or environment variables for local development.
+docker run -p 8080:5000 \
+  -e KEY_VAULT_URL="https://<your-vault>.vault.azure.net/" \
+  -e AZURE_TENANT_ID=$AZURE_TENANT_ID \
+  -e AZURE_CLIENT_ID=$AZURE_CLIENT_ID \
+  -e AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET \
+  -e ASPNETCORE_ENVIRONMENT=Development \
+  -e ASPNETCORE_URLS=http://+:5000 \
+  -e DOTNET_RUNNING_IN_CONTAINER=true \
+  galeriqapi:test
 
-## Running the photo processing function
 
-If you want to run the Azure Function locally:
+Open Swagger:
 
-```bash
-cd PhotoProcessingFunction
-func start
-```
+http://localhost:8080/swagger
 
-Ensure your local environment has the required Service Bus and Storage connection strings configured. If you're using Azurite for storage locally, point the function storage settings to the Azurite endpoints.
+3. Run using Environment Variables (local or non-Azure hosting)
+docker run -p 8080:5000 \
+  -e DB_CONNECTION="Server=server;Database=db;User Id=user;Password=pw;" \
+  -e SB_CONNECTION="Endpoint=sb://...." \
+  -e ASPNETCORE_ENVIRONMENT=Development \
+  -e ASPNETCORE_URLS=http://+:5000 \
+  -e DOTNET_RUNNING_IN_CONTAINER=true \
+  galeriqapi:test
 
-## Tests
+🫙 Running with Podman [For older machines that don't support Docker]
+1. Build the image
+podman build -t galeriqapi:test .
 
-Run unit tests:
+2. Run using Key Vault
+podman run -p 8080:5000 `
+  -e KEY_VAULT_URL="https://<your-vault>.vault.azure.net/" `
+  -e AZURE_TENANT_ID=$env:AZURE_TENANT_ID `
+  -e AZURE_CLIENT_ID=$env:AZURE_CLIENT_ID `
+  -e AZURE_CLIENT_SECRET=$env:AZURE_CLIENT_SECRET `
+  -e ASPNETCORE_ENVIRONMENT=Development `
+  -e ASPNETCORE_URLS=http://+:5000 `
+  -e DOTNET_RUNNING_IN_CONTAINER=true `
+  galeriqapi:test
 
-```bash
-dotnet test
-```
 
-## Contributing
+Open Swagger:
 
-- Create a new branch for changes.
-- Add tests for bug fixes or new features.
-- Open a pull request with a clear description.
+http://localhost:8080/swagger
+
+3. Run using environment variables
+podman run -p 8080:5000 `
+  -e DB_CONNECTION="Server=server;Database=db;User Id=user;Password=pw;" `
+  -e SB_CONNECTION="Endpoint=sb://...." `
+  -e ASPNETCORE_ENVIRONMENT=Development `
+  -e ASPNETCORE_URLS=http://+:5000 `
+  -e DOTNET_RUNNING_IN_CONTAINER=true `
+  galeriqapi:test
+
+🔐 How Secrets Are Loaded
+
+The API retrieves secrets in this order:
+
+1️⃣ Azure Key Vault (if KEY_VAULT_URL is set)
+
+galeriqDB → database connection
+galeriqSB → service bus connection
+
+2️⃣ Environment Variables (local + non-Azure)
+
+DB_CONNECTION
+SB_CONNECTION
+
+3️⃣ Default local fallback
+
+Local SQL Express connection (dev only)
+
+📘 Accessing the API
+
+Inside a container, the API is HTTP-only:
+
+http://localhost:8080/
+http://localhost:8080/swagger
 
 ## JIRA
 Link to board: https://galeriq.atlassian.net/jira/software/projects/MBA/boards/1
