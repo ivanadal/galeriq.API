@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.33627.172
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Galeriq.CollectionsAPI", "GaleriqAPI\Galeriq.CollectionsAPI.csproj", "{04C85972-6DB0-4647-9A56-E6C52BF62158}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Galeriq.GaleriqAPI", "GaleriqAPI\Galeriq.GaleriqAPI.csproj", "{04C85972-6DB0-4647-9A56-E6C52BF62158}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Galeriq.PhotoProcessingFunction", "PhotoProcessingFunction\Galeriq.PhotoProcessingFunction.csproj", "{AD03DCAF-1767-4AAB-B1CE-8EFAFF596EED}"
 EndProject
