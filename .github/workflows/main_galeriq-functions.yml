@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy dotnet core app to Azure Function App - galeriq-functions
+name: Deploy Containerized ASP.NET API
 
 on:
   push:
@@ -9,35 +6,46 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  DOTNET_VERSION: '8.0.x' # set this to the dotnet version to use
+  AZURE_WEBAPP_NAME: "galeriq-api"
+  AZURE_RESOURCE_GROUP: "galeriq-rg"
+  AZURE_CONTAINER_REGISTRY: "GaleriqGaleriqAPIContainerRegistry.azurecr.io"
+  ACR_NAME: "GaleriqGaleriqAPIContainerRegistry"
+  IMAGE_NAME: "galeriqapi"
 
 jobs:
   build-and-deploy:
-    runs-on: windows-latest
-    
+    runs-on: ubuntu-latest
+
     steps:
-      - name: 'Checkout GitHub Action'
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-        uses: actions/setup-dotnet@v1
+      # Login to Azure using OIDC
+      - name: Azure Login
+        uses: azure/login@v2
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: 'Resolve Project Dependencies Using Dotnet'
-        shell: pwsh
+      # Login to ACR
+      - name: Login to ACR
         run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
-          popd
-      
-      - name: 'Run Azure Functions Action'
-        uses: Azure/functions-action@v1
-        id: fa
+          az acr login --name ${{ env.ACR_NAME }}
+
+      # Build & push Docker image
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      # Deploy to Web App for Containers
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
         with:
-          app-name: 'galeriq-functions'
-          slot-name: 'Production'
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2DEB49AD7D17491BB71D6E3472114EE8 }}
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          images: "${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
