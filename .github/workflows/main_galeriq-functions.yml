@@ -1,4 +1,4 @@
-name: Deploy Containerized ASP.NET API
+name: Build and deploy Dockerized ASP.NET API to Azure
 
 on:
   push:
@@ -7,24 +7,41 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write
+  id-token: write     # required for OIDC login
   contents: read
 
 env:
-  AZURE_WEBAPP_NAME: "galeriq-api"
-  AZURE_RESOURCE_GROUP: "galeriq-rg"
-  AZURE_CONTAINER_REGISTRY: "GaleriqGaleriqAPIContainerRegistry.azurecr.io"
-  ACR_NAME: "GaleriqGaleriqAPIContainerRegistry"
+  AZURE_RESOURCE_GROUP: "testivcho-group"                        # Your resource group
+  AZURE_WEBAPP_NAME: "GaleriqAPI-container"                 # Your Web App name
+  ACR_NAME: "galeriqgaleriqapicontainerregistry"            # Your Azure Container Registry name
+  ACR_LOGIN_SERVER: "galeriqgaleriqapicontainerregistry.azurecr.io"
   IMAGE_NAME: "galeriqapi"
+  IMAGE_TAG: "${{ github.sha }}"
+  DOTNET_VERSION: '10.0.x'
+  WEBSITES_PORT: "80"
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # 1️⃣ Checkout code
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # Login to Azure using OIDC
+      # 2️⃣ Setup .NET SDK
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # 3️⃣ Build project
+      - name: Build project
+        shell: bash
+        run: |
+          dotnet build -c Release
+
+      # 4️⃣ Login to Azure using OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -32,20 +49,35 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # Login to ACR
+      # 5️⃣ Login to ACR (Docker)
       - name: Login to ACR
-        run: |
-          az acr login --name ${{ env.ACR_NAME }}
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.AZURE_CLIENT_ID }}
+          password: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-      # Build & push Docker image
-      - name: Build and Push Docker Image
+      # 6️⃣ Build Docker image
+      - name: Build Docker image
         run: |
-          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
-          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker build -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
 
-      # Deploy to Web App for Containers
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+      # 7️⃣ Push Docker image to ACR
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+      # 8️⃣ Set Web App port (if your Dockerfile exposes 80)
+      - name: Set Web App port
+        run: |
+          az webapp config appsettings set \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --settings WEBSITES_PORT=80
+
+      # 9️⃣ Deploy Docker image to Web App for Containers
+      - name: Deploy Docker image to Web App
+        uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          images: "${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          images: "${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
